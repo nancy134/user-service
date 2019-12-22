@@ -3,6 +3,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('./jwt');
+const rabbitmq = require('./rabbitmq');
 
 // Constants
 const PORT = 8080;
@@ -29,3 +30,5 @@ app.post('/verifyToken', function(req, res) {
 });
 
 app.listen(PORT, HOST);
+
+rabbitmq.receive();
