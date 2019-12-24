@@ -20,8 +20,10 @@ app.get('/', (req, res) => {
 });
 
 app.post('/verifyToken', function(req, res) {
-    var AccessToken = req.body.AccessToken;
-    var verifyTokenPromise = jwt.verifyToken(AccessToken);
+    var IdToken = req.body.IdToken;
+    var cognitoClientId = req.body.cognitoClientId;
+    var cognitoPoolId = req.body.cognitoPoolId;
+    var verifyTokenPromise = jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId);
     verifyTokenPromise.then(function(result){
         res.send(result);
     }).catch(function(err){

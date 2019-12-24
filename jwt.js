@@ -2,14 +2,14 @@ const jwt = require('jsonwebtoken');
 const rp = require('request-promise');
 const jwkToPem = require('jwk-to-pem');
 
-exports.verifyToken = function(token){
+exports.verifyToken = function(token, cognitoClientId, cognitoPoolId){
     return new Promise(function(resolve, reject) {
         var decodedJwt = jwt.decode(token, {complete: true});
 
         // Compare client id
-        if (decodedJwt.payload.aud === process.env.COGNITO_CLIENT_ID){
+        if (decodedJwt.payload.aud === cognitoClientId){
         } else {
-            var err = {status: "failed"};
+            var err = {status: "Cognito Client id does not match"};
             reject(err);
         }
 
@@ -17,18 +17,18 @@ exports.verifyToken = function(token){
         var issuerUrl = "https://cognito-idp." +
                         process.env.AWS_REGION +
                         ".amazonaws.com/" +
-                        process.env.COGNITO_POOL_ID;
+                        cognitoPoolId;
                         
         if (decodedJwt.payload.iss === issuerUrl){
         }else{
-            var err = {status: "failed"};
+            var err = {status: "Issuer URL does not match"};
             reject();
         }
 
         var url = "https://cognito-idp." +
                   process.env.AWS_REGION +
                   ".amazonaws.com/" +
-                  process.env.COGNITO_POOL_ID +
+                  cognitoPoolId +
                   "/.well-known/jwks.json"
         var options = {
             uri: url,
