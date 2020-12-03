@@ -3,7 +3,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('./jwt');
-const rabbitmq = require('./rabbitmq');
+const sqs = require('./sqs');
+
+const AWS = require('aws-sdk');
+const { Consumer } = require('sqs-consumer');
+AWS.config.update({region: 'us-east-1'});
+const newUserQueueUrl = "https://sqs.us-east-1.amazonaws.com/461318555119/new-user";
 
 // Constants
 const PORT = 8080;
@@ -16,11 +21,19 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send('Hello admin.phowma.com\n');
+  res.send('user-service\n');
 });
 
+function getToken(req){
+    var authorization = req.get("Authorization");
+    var array = authorization.split(" ");
+    var IdToken = array[1];
+    return IdToken;
+}
+
 app.post('/verifyToken', function(req, res) {
-    var IdToken = req.body.IdToken;
+    var IdToken = getToken(req);
+    console.log("IdToken: "+IdToken);
     var cognitoClientId = req.body.cognitoClientId;
     var cognitoPoolId = req.body.cognitoPoolId;
     var verifyTokenPromise = jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId);
@@ -31,6 +44,26 @@ app.post('/verifyToken', function(req, res) {
     })
 });
 
-app.listen(PORT, HOST);
+app.get('/profile', function(req, res){
+});
 
-rabbitmq.receive();
+const sqsApp = Consumer.create({
+    queueUrl: newUserQueueUrl,
+    handleMessage: async (message) => {
+        var json = JSON.parse(message.Body);
+        var json2 = JSON.parse(json.Message);
+        console.log(json2);
+        console.log("-----------------------------------------------------");
+        
+    },
+    sqs: new AWS.SQS()
+});
+
+sqsApp.on('error', (err) => {
+    console.log(err);
+});
+sqsApp.on('processing_error', (err) => {
+    console.log(err);
+});
+sqsApp.start();
+app.listen(PORT, HOST);

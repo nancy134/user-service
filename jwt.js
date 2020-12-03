@@ -5,7 +5,6 @@ const jwkToPem = require('jwk-to-pem');
 exports.verifyToken = function(token, cognitoClientId, cognitoPoolId){
     return new Promise(function(resolve, reject) {
         var decodedJwt = jwt.decode(token, {complete: true});
-
         // Compare client id
         if (decodedJwt.payload.aud === cognitoClientId){
         } else {
