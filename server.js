@@ -45,7 +45,16 @@ app.post('/verifyToken', function(req, res) {
     })
 });
 
-app.get('/profile', function(req, res){
+app.get('/users', function(req, res){
+    var page = req.query.page || 1;
+    var limit = req.query.perPage || 20;
+    var offset = (parseInt(page)-1)*parseInt(limit);
+    var where = null;
+    userService.getUsers(page, limit, offset, where).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log(err);
+    }); 
 });
 
 const sqsApp = Consumer.create({

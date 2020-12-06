@@ -14,4 +14,24 @@ var create = function(body, t){
     });
 }
 
+var getUsers = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+        models.User.findAndCountAll({
+            where: where,
+            limit: limit,
+            offset: offset,
+            attributes: ['id', 'email', 'cognitoId']
+        }).then(users => {
+            var ret = {
+                page: page,
+                perPage: limit,
+                users: users
+            };
+            resolve(ret);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
 exports.create = create;
+exports.getUsers = getUsers;
