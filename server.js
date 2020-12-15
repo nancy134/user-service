@@ -34,7 +34,6 @@ function getToken(req){
 
 app.post('/verifyToken', function(req, res) {
     var IdToken = getToken(req);
-    console.log("IdToken: "+IdToken);
     var cognitoClientId = req.body.cognitoClientId;
     var cognitoPoolId = req.body.cognitoPoolId;
     var verifyTokenPromise = jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId);
@@ -55,6 +54,21 @@ app.get('/users', function(req, res){
     }).catch(function(err){
         console.log(err);
     }); 
+});
+
+app.get('/user', function(req, res){
+    var IdToken = jwt.getToken(req);
+    var cognitoClientId = req.query.cognitoClientId;
+    var cognitoPoolId = req.query.cognitoPoolId;
+    userService.getUser(IdToken, cognitoClientId, cognitoPoolId).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        if (err.statusCode){
+            res.status(err.statusCode).send(err);
+        } else {
+            res.send(err);
+        }
+    });
 });
 
 const sqsApp = Consumer.create({

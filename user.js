@@ -1,4 +1,5 @@
 const models = require("./models");
+const jwt = require('./jwt');
 
 var create = function(body, t){
     return new Promise(function(resolve, reject){
@@ -33,5 +34,25 @@ var getUsers = function(page, limit, offset, where){
         });
     });
 }
+
+var getUser = function(IdToken, cognitoClientId, cognitoPoolId){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId).then(function(jwtResult){      
+            models.User.findOne({
+                where: {
+                    cognitoId: jwtResult["cognito:username"] 
+                }
+            }).then(function(result){
+                resolve(result);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.create = create;
 exports.getUsers = getUsers;
+exports.getUser = getUser;

@@ -2,13 +2,24 @@ const jwt = require('jsonwebtoken');
 const rp = require('request-promise');
 const jwkToPem = require('jwk-to-pem');
 
+exports.getToken = function(req){
+    var authorization = req.get("Authorization");
+    var array = authorization.split(" ");
+    var IdToken = array[1];
+    return IdToken;
+}
+
 exports.verifyToken = function(token, cognitoClientId, cognitoPoolId){
     return new Promise(function(resolve, reject) {
         var decodedJwt = jwt.decode(token, {complete: true});
         // Compare client id
         if (decodedJwt.payload.aud === cognitoClientId){
         } else {
-            var err = {status: "Cognito Client id does not match"};
+            var err = {
+                statusCode: 400,
+                code: "InvalidCognitoClientId",
+                message: "Cognito Client id does not match"
+            };
             reject(err);
         }
 
@@ -20,8 +31,12 @@ exports.verifyToken = function(token, cognitoClientId, cognitoPoolId){
                         
         if (decodedJwt.payload.iss === issuerUrl){
         }else{
-            var err = {status: "Issuer URL does not match"};
-            reject();
+            var err = {
+                statusCode: 400,
+                code: "InvalidIssuerURL",
+                message: "Issuer URL does not match"
+            };
+            reject(err);
         }
 
         var url = "https://cognito-idp." +
@@ -46,9 +61,24 @@ exports.verifyToken = function(token, cognitoClientId, cognitoPoolId){
 
             jwt.verify(token, pem, function(err, decoded) {
                 if (err) {
-                    reject(err);
+                    var returnErr = {};
+                    if (err.name === "TokenExpiredError"){
+                        returnErr = {
+                            statusCode: 401,
+                            code: err.name,
+                            message: "Token expired"
+                        };
+                        reject(returnErr);
+                    } else {
+                        return Err = {
+                            statusCode: 400,
+                            code: err.name,
+                            message: err.message
+                        };
+                        reject(returnErr);
+                    }
                 } else {
-                    resolve({status: "verified"});
+                    resolve(decoded);
                 }
             }); 
         })
