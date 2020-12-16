@@ -43,6 +43,7 @@ var getUser = function(IdToken, cognitoClientId, cognitoPoolId){
                     cognitoId: jwtResult["cognito:username"] 
                 }
             }).then(function(result){
+                result.dataValues.stateOptions = models.User.rawAttributes.state.values;
                 resolve(result);
             }).catch(function(err){
                 reject(err);
