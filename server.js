@@ -71,6 +71,19 @@ app.get('/user', function(req, res){
     });
 });
 
+app.put('/users/:id', (req, res) => {
+    var IdToken = jwt.getToken(req); 
+    userService.update(IdToken, req.params.id, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        if (err.statusCode){
+            res.status(err.statusCode).json(err);
+        } else {
+            res.send(err);
+        }
+    });
+});
+
 const sqsApp = Consumer.create({
     queueUrl: newUserQueueUrl,
     handleMessage: async (message) => {

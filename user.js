@@ -53,6 +53,30 @@ var getUser = function(IdToken, cognitoClientId, cognitoPoolId){
     });
 }
 
+var update = function(IdToken, id, body, t){
+    return new Promise(function(resolve, reject){
+        var cognitoClientId = body.cognitoClientId;
+        var cognitoPoolId = body.cognitoPoolId;
+        jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId).then(function(jwtResult){
+            models.User.update(
+                body,
+                {
+                    returning: true,
+                    where: {id: id},
+                    transaction: t
+                }
+            ).then(function([rowsUpdate, [user]]){
+                resolve(user);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.create = create;
 exports.getUsers = getUsers;
 exports.getUser = getUser;
+exports.update = update;
