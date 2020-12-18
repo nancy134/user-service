@@ -21,7 +21,7 @@ var getUsers = function(page, limit, offset, where){
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'email', 'cognitoId']
+            attributes: ['id', 'email', 'cognitoId','first','last']
         }).then(users => {
             var ret = {
                 page: page,
