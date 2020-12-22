@@ -1,7 +1,8 @@
 const models = require("./models");
+
 const jwt = require('./jwt');
 
-var create = function(body, t){
+exports.create = function(body, t){
     return new Promise(function(resolve, reject){
         models.User.findOrCreate({
            where: body,
@@ -15,7 +16,7 @@ var create = function(body, t){
     });
 }
 
-var getUsers = function(page, limit, offset, where){
+exports.getUsers = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.User.findAndCountAll({
             where: where,
@@ -35,16 +36,24 @@ var getUsers = function(page, limit, offset, where){
     });
 }
 
-var getUser = function(IdToken, cognitoClientId, cognitoPoolId){
+exports.getUserMe = function(authParams){
     return new Promise(function(resolve, reject){
-        jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId).then(function(jwtResult){      
+        jwt.verifyToken(authParams).then(function(jwtResult){
             models.User.findOne({
                 where: {
                     cognitoId: jwtResult["cognito:username"] 
                 }
             }).then(function(result){
-                result.dataValues.stateOptions = models.User.rawAttributes.state.values;
-                resolve(result);
+                if (result){
+                    var user = result.get({plain:true});
+                    resolve(user);
+                } else {
+                    var err = {
+                        statusCode: 400,
+                        message: "User not found in database"
+                    };
+                    resolve(err);
+                }
             }).catch(function(err){
                 reject(err);
             });
@@ -54,20 +63,21 @@ var getUser = function(IdToken, cognitoClientId, cognitoPoolId){
     });
 }
 
-var update = function(IdToken, id, body, t){
+exports.updateUserMe = function(authParms, body){
     return new Promise(function(resolve, reject){
-        var cognitoClientId = body.cognitoClientId;
-        var cognitoPoolId = body.cognitoPoolId;
-        jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId).then(function(jwtResult){
+        module.exports.getUserMe(authParams).then(function(result){
             models.User.update(
                 body,
                 {
                     returning: true,
-                    where: {id: id},
-                    transaction: t
+                    where: {id: result.id}
                 }
-            ).then(function([rowsUpdate, [user]]){
-                resolve(user);
+            ).then(function(update){
+                if (!update[0]){
+                    reject({message: "No records updated"});
+                } else {
+                    resolve(update[1][0]);
+                }
             }).catch(function(err){
                 reject(err);
             });
@@ -77,7 +87,3 @@ var update = function(IdToken, id, body, t){
     });
 }
 
-exports.create = create;
-exports.getUsers = getUsers;
-exports.getUser = getUser;
-exports.update = update;

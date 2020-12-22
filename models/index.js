@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV;
 const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
 
@@ -23,6 +23,7 @@ fs
   });
 
 Object.keys(db).forEach(modelName => {
+  /* istanbul ignore if */
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }

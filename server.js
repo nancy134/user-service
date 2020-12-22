@@ -3,13 +3,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('./jwt');
-
 const AWS = require('aws-sdk');
 const { Consumer } = require('sqs-consumer');
 const userService = require('./user');
 
+const jwksRsa = require('jwks-rsa');
+
 AWS.config.update({region: 'us-east-1'});
-const newUserQueueUrl = "https://sqs.us-east-1.amazonaws.com/461318555119/new-user";
+const newUserQueueUrl = process.env.AWS_SQS_NEW_USER_QUEUE
 
 // Constants
 const PORT = 8080;
@@ -18,11 +19,24 @@ const HOST = '0.0.0.0';
 // App
 const app = express();
 
+function errorResponse(res, err){
+    if (err.statusCode){
+        res.status(err.statusCode).send(err);
+    } else {
+        res.status(400).send(err);
+    }
+}
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send('user-service\n');
+    var IdToken = getToken(req);
+    var jwksUri = jwt.getJwksUri(req.body.cognitoPoolId);
+    jwt.verifyToken(IdToken, jwksUri).then(function(result){
+        res.send(result);
+    }).catch(function(err){
+        res.send(err);
+    });
 });
 
 function getToken(req){
@@ -32,12 +46,10 @@ function getToken(req){
     return IdToken;
 }
 
-app.post('/verifyToken', function(req, res) {
+app.get('/verifyToken', function(req, res) {
     var IdToken = getToken(req);
-    var cognitoClientId = req.body.cognitoClientId;
-    var cognitoPoolId = req.body.cognitoPoolId;
-    var verifyTokenPromise = jwt.verifyToken(IdToken, cognitoClientId, cognitoPoolId);
-    verifyTokenPromise.then(function(result){
+    var jwksUri = jwt.getJwksUri(req.body.cognitoPoolId);
+    jwt.verifyToken(IdToken, jwksUri).then(function(result){
         res.send(result);
     }).catch(function(err){
         res.send(err);
@@ -56,31 +68,21 @@ app.get('/users', function(req, res){
     }); 
 });
 
-app.get('/user', function(req, res){
-    var IdToken = jwt.getToken(req);
-    var cognitoClientId = req.query.cognitoClientId;
-    var cognitoPoolId = req.query.cognitoPoolId;
-    userService.getUser(IdToken, cognitoClientId, cognitoPoolId).then(function(result){
+app.get('/user/me', function(req, res){
+    var authParams = jwt.getAuthParams(req);
+    userService.getUserMe(authParams).then(function(result){
         res.json(result);
     }).catch(function(err){
-        if (err.statusCode){
-            res.status(err.statusCode).send(err);
-        } else {
-            res.send(err);
-        }
+        errorResponse(res, err);
     });
 });
 
-app.put('/users/:id', (req, res) => {
-    var IdToken = jwt.getToken(req); 
-    userService.update(IdToken, req.params.id, req.body).then(function(result){
+app.put('/user/me', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    userService.updateUserMe(authParams, req.body).then(function(result){
         res.json(result);
     }).catch(function(err){
-        if (err.statusCode){
-            res.status(err.statusCode).json(err);
-        } else {
-            res.send(err);
-        }
+        errorResponse(res,err);
     });
 });
 
@@ -108,4 +110,9 @@ sqsApp.on('processing_error', (err) => {
     console.log(err);
 });
 sqsApp.start();
-app.listen(PORT, HOST);
+
+if (process.env.NODE_ENV !== "test"){
+    app.listen(PORT, HOST);
+}
+
+module.exports = app;
