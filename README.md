@@ -39,6 +39,7 @@ Listen for new-user message
 GET /users (Administrative access)
 GET /user/me (User access)
 PUT /user/me (User access)
+GET /enums (No restrictions)
 ```
 # Run unit tests
 ```
