@@ -30,30 +30,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    var IdToken = getToken(req);
-    var jwksUri = jwt.getJwksUri(req.body.cognitoPoolId);
-    jwt.verifyToken(IdToken, jwksUri).then(function(result){
-        res.send(result);
-    }).catch(function(err){
-        res.send(err);
-    });
-});
-
-function getToken(req){
-    var authorization = req.get("Authorization");
-    var array = authorization.split(" ");
-    var IdToken = array[1];
-    return IdToken;
-}
-
-app.get('/verifyToken', function(req, res) {
-    var IdToken = getToken(req);
-    var jwksUri = jwt.getJwksUri(req.body.cognitoPoolId);
-    jwt.verifyToken(IdToken, jwksUri).then(function(result){
-        res.send(result);
-    }).catch(function(err){
-        res.send(err);
-    })
+    res.send("user-service");
 });
 
 app.get('/users', function(req, res){
@@ -65,7 +42,6 @@ app.get('/users', function(req, res){
     userService.getUsers(authParams, page, limit, offset, where).then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log(err);
         errorResponse(res, err);
     }); 
 });
@@ -87,7 +63,6 @@ app.put('/user/me', (req, res) => {
         errorResponse(res,err);
     });
 });
-
 const sqsApp = Consumer.create({
     queueUrl: newUserQueueUrl,
     handleMessage: async (message) => {
@@ -99,20 +74,18 @@ const sqsApp = Consumer.create({
         }
         userService.create(body).then(function(result){
         }).catch(function(err){
-            console.log(err);
         }); 
     },
     sqs: new AWS.SQS()
 });
 
 sqsApp.on('error', (err) => {
-    console.log(err);
 });
 sqsApp.on('processing_error', (err) => {
-    console.log(err);
 });
 sqsApp.start();
 
+/* istanbul ignore if */
 if (process.env.NODE_ENV !== "test"){
     app.listen(PORT, HOST);
 }
