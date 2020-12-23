@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const server = require("../server");
+//const server = require("../server");
 const proxyquire = require("proxyquire");
 
 chai.use(chaiHttp);
@@ -167,3 +167,4 @@ describe("server error with status code", () => {
     });
 
 });
+
