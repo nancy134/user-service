@@ -14,8 +14,9 @@ npx sequelize db:create
 npx sequelize db:migrate
 ```
 # Port
+```
 49161
-
+```
 # Environment variables
 ```
 DATABASE_URL
@@ -26,11 +27,13 @@ AWS_SQS_NEW_USER_QUEUE
 NODE_ENV
 ```
 # Database Tables
+```
 User
-
+```
 # SQS
+```
 Listen for new-user message
-
+```
 # API
 ```
 GET /users (Administrative access)
@@ -38,4 +41,6 @@ GET /user/me (User access)
 PUT /user/me (User access)
 ```
 # Run unit tests
+```
 nyc npm test
+```
