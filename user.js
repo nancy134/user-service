@@ -2,11 +2,10 @@ const models = require("./models");
 
 const jwt = require('./jwt');
 
-exports.create = function(body, t){
+exports.create = function(body){
     return new Promise(function(resolve, reject){
         models.User.findOrCreate({
-           where: body,
-           transaction: t
+           where: body
         }).then(function(result){
             var user = result[0].get({plain: true});
             resolve(user);
