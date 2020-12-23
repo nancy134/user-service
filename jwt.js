@@ -31,6 +31,19 @@ exports.getAuthParams = function(req){
     return authParams;
 }
 
+exports.isAdmin = function(jwtResult){
+   if (jwtResult["cognito:groups"]){
+       var groups = jwtResult["cognito:groups"];
+       if (groups.includes("Admin")){
+           return true;
+       } else {
+           return false;
+       }
+   } else {
+       return false;
+   }
+}
+
 exports.verifyToken = function(authParams){
     return new Promise(function(resolve, reject){
         var client = jwksClient({

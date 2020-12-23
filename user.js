@@ -16,21 +16,33 @@ exports.create = function(body, t){
     });
 }
 
-exports.getUsers = function(page, limit, offset, where){
+exports.getUsers = function(authParams, page, limit, offset, where){
     return new Promise(function(resolve, reject){
-        models.User.findAndCountAll({
-            where: where,
-            limit: limit,
-            offset: offset,
-            attributes: ['id', 'email', 'cognitoId','first','last']
-        }).then(users => {
-            var ret = {
-                page: page,
-                perPage: limit,
-                users: users
-            };
-            resolve(ret);
-        }).catch(err => {
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            if (jwt.isAdmin(jwtResult)){
+                models.User.findAndCountAll({
+                    where: where,
+                    limit: limit,
+                    offset: offset,
+                    attributes: ['id', 'email', 'cognitoId','first','last']
+                }).then(users => {
+                    var ret = {
+                        page: page,
+                        perPage: limit,
+                        users: users
+                    };
+                    resolve(ret);
+                }).catch(err => {
+                    reject(err);
+                });
+            } else {
+                ret = {
+                    "statusCode": 400,
+                    "message": "You do not have access to view users"
+                };
+                resolve(ret);
+            }
+        }).catch(function(err){
             reject(err);
         });
     });
