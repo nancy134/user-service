@@ -98,3 +98,11 @@ exports.updateUserMe = function(authParms, body){
     });
 }
 
+exports.getEnums = function(){
+    return new Promise(function(resolve, reject){
+        ret = {};
+        ret.states = models.User.rawAttributes.state.values;
+        resolve(ret);
+    });
+}
+

@@ -59,6 +59,12 @@ app.put('/user/me', (req, res) => {
     });
 });
 
+app.get('/enums', (req, res) => {
+    userService.getEnums().then(function(result){
+        res.json(result);
+    });
+});
+
 /* istanbul ignore if */
 if (process.env.NODE_ENV !== "test"){
     app.listen(PORT, HOST);

@@ -20,6 +20,10 @@ describe("server successful tests", () => {
         updateUserMe: function(){
             var result = { first: "Nancy" };
             return Promise.resolve(result);
+       },
+       getEnums: function(){
+           var result = { states: [] };
+           return Promise.resolve(result);
        }
     } 
 
@@ -68,6 +72,14 @@ describe("server successful tests", () => {
         chai
         .request(server)
         .get("/user/me")
+        .end((err, res) => {
+            done();
+        });
+    });
+    it ("get enums", done => {
+        chai
+        .request(server)
+        .get('/enums')
         .end((err, res) => {
             done();
         });

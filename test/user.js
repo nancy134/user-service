@@ -100,7 +100,12 @@ describe("successful system tests", function(){
 
 describe("unsuccessful system tests", function(){
     var User = {
-        findOrCreate: stub()
+        findOrCreate: stub(),
+        rawAttributes: {
+            state: {
+                values: []
+            }
+        }
     }
     var mockModels = makeMockModels({ User });
 
@@ -117,6 +122,12 @@ describe("unsuccessful system tests", function(){
             done();
         });
     });
+    it("getEnums", function(done){
+        userModule.getEnums().then(function(result){
+            done();
+        });
+    });
+
 
 });
 describe("unsuccessful me user tests", function(){
