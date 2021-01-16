@@ -59,6 +59,15 @@ app.put('/user/me', (req, res) => {
     });
 });
 
+app.get('/users/:id', (req, res) => {
+    var id = req.params.id;
+    userService.getUser(id).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 app.get('/enums', (req, res) => {
     userService.getEnums().then(function(result){
         res.json(result);

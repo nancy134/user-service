@@ -2,6 +2,14 @@ const models = require("./models");
 
 const jwt = require('./jwt');
 
+function formatError(code, message){
+    var ret = {
+        statusCode: code,
+        message: message
+    };
+    return ret;
+}
+
 exports.create = function(body){
     return new Promise(function(resolve, reject){
         models.User.findOrCreate({
@@ -68,6 +76,38 @@ exports.getUserMe = function(authParams){
             }).catch(function(err){
                 reject(err);
             });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.getUser = function(id){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {
+                cognitoId: id
+            },
+            attributes: [
+                'id',
+                'email',
+                'company',
+                'first',
+                'middle',
+                'last',
+                 'company',
+                 'address1',
+                 'address2',
+                 'city',
+                 'state'
+            ]
+        }).then(function(result){
+            if (result){
+                var user = result.get({plain:true});
+                resolve(user);
+            } else {
+                reject(formatError(400, "User not found"));
+            } 
         }).catch(function(err){
             reject(err);
         });
