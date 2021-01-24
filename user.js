@@ -90,6 +90,7 @@ exports.getUser = function(id){
             },
             attributes: [
                 'id',
+                'cognitoId',
                 'email',
                 'company',
                 'first',
