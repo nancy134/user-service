@@ -17,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         zip: DataTypes.STRING,
         bio: DataTypes.TEXT,
+        officePhone: DataTypes.STRING,
+        mobilePhone: DataTypes.STRING,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, {});

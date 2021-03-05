@@ -100,7 +100,9 @@ exports.getUser = function(id){
                  'address1',
                  'address2',
                  'city',
-                 'state'
+                 'state',
+                 'officePhone',
+                 'mobilePhone'
             ]
         }).then(function(result){
             if (result){
