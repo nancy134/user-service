@@ -25,6 +25,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
+    console.log("user-service");
     res.send("user-service");
 });
 
