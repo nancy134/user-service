@@ -58,6 +58,10 @@ exports.getUsers = function(authParams, page, limit, offset, where){
 exports.getUserMe = function(authParams){
     return new Promise(function(resolve, reject){
         jwt.verifyToken(authParams).then(function(jwtResult){
+            var isAdmin = false;
+            if (jwt.isAdmin(jwtResult)){
+                isAdmin = true;
+            }
             models.User.findOne({
                 where: {
                     cognitoId: jwtResult["cognito:username"] 
@@ -65,6 +69,7 @@ exports.getUserMe = function(authParams){
             }).then(function(result){
                 if (result){
                     var user = result.get({plain:true});
+                    user.isAdmin = isAdmin;
                     resolve(user);
                 } else {
                     var err = {
