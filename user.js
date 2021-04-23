@@ -107,7 +107,8 @@ exports.getUser = function(id){
                  'city',
                  'state',
                  'officePhone',
-                 'mobilePhone'
+                 'mobilePhone',
+                 'optout'
             ]
         }).then(function(result){
             if (result){

@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         bio: DataTypes.TEXT,
         officePhone: DataTypes.STRING,
         mobilePhone: DataTypes.STRING,
+        optout: DataTypes.BOOLEAN,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, {});
