@@ -6,6 +6,8 @@ const jwt = require('./jwt');
 const userService = require('./user');
 const jwksRsa = require('jwks-rsa');
 const sqsService = require('./sqs');
+const associationService = require('./association');
+const utilities = require('./utilities');
 
 // Constants
 const PORT = 8080;
@@ -25,7 +27,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    console.log("user-service");
     res.send("user-service");
 });
 
@@ -74,6 +75,90 @@ app.get('/enums', (req, res) => {
         res.json(result);
     });
 });
+
+app.get('/associations', (req, res) => {
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    associationService.getAll(authParams, pageParams, where).then(function(associations){
+        res.json(associations);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.get('/associations/:id', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    associationService.get(authParams, req.params.id).then(function(association){
+        res.json(association);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.post('/associations/me', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    associationService.createMe(authParams, req.body).then(function(association){
+        res.json(association);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.post('/associations', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    associationService.create(authParams, req.body).then(function(association){
+        res.json(association);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.post('/associations/:id/users/me', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    userService.invite(authParams, req.body.email, req.params.id).then(function(association){
+        res.json(association);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.put('/associations/:id', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    associationService.update(authParams, req.params.id, req.body).then(function(association){
+        res.json(association);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+/*
+app.post('/associates/users', (req, res) => {
+    var associationBody = {
+        name: req.body.name
+    };
+    sequelize.transation().then(function(t){
+        associatonService.create(associationBody, t).then(function(association){
+            // loop through users and create promises to send invitations
+            var promises = [];
+            for (var i=0; i<req.body.users.length; i++){
+                var invitePromise = userService.invite(req.body.users[i], null, t);
+                promises.push(invitePromise);
+            }
+            Promise.all(promises).then(function(result){
+                t.commit();
+                resolve(result);a
+            }).catch(function(err){
+                t.rollback();
+                reject(err);
+            }); 
+        }).catch(function(err){
+            t.rollback();
+            reject(err);
+        });
+    });
+});
+*/
 
 /* istanbul ignore if */
 if (process.env.NODE_ENV !== "test"){

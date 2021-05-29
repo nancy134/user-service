@@ -20,8 +20,17 @@ module.exports = (sequelize, DataTypes) => {
         officePhone: DataTypes.STRING,
         mobilePhone: DataTypes.STRING,
         optout: DataTypes.BOOLEAN,
+        associationStatus: {
+            type: DataTypes.ENUM,
+            values: ["Invite sent", "Invite accepted"]
+        },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, {});
+
+    User.associate = function(models){
+        User.belongsTo(models.Association, {as: 'association', foreignKey: 'AssociationId'});
+    };
+
     return User;
 }

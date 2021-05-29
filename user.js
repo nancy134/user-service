@@ -23,6 +23,79 @@ exports.create = function(body){
     });
 }
 
+exports.invite = function(authParams, email, associationId, t){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            models.User.findOne({
+                where: {
+                    email: email
+                }
+            }).then(function(user){
+                var userExists = false;
+                var hasAssociation = false;
+
+                // 1. check if it exists
+                if (user !== null) {
+                    userExists = true;
+                }
+
+                // 2. if it exists, check if it has association id 
+                if (userExists){
+                   if (user.AssociationId){
+                       hasAssocation = true;
+                   }
+                }
+
+                // 3. if it has association id, check if it is the same and send 'already associate'
+                if (hasAssociation){
+                    if (user.AssociationId === associationId){
+                        var errMessage = {
+                            statusCode: 400,
+                            message: "This user is already an associate of this organization"
+                        };
+                        reject(errMessage);
+                    }
+                }
+                // 4. if it has association id and not the same, send 'part of other association' error
+                if (hasAssociation){
+                    if (user.AssociationId !== associationId){
+                        var errMessage = {
+                            statusCode: 400,
+                            message: "This user is an associate of another organization"
+                        }
+                        reject(errMessage);
+                    }
+                }
+                // 5. if it doesn't exist create it and send invite
+                // 6. if it exists and doesn't have association, send invite
+                var userBody = {
+                    AssociationId: associationId,
+                    associationStatus: "Invite sent"
+                }
+                if (userExists){
+                    exports.update(authParams, id, userBody).then(function(user){
+                        resolve(user);
+                    }).catch(function(err){
+                        reject(err);
+                    });                    
+                } else {
+                    userBody.email = email;
+                    exports.create(userBody).then(function(user){
+                        resolve(user);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                }
+
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.getUsers = function(authParams, page, limit, offset, where){
     return new Promise(function(resolve, reject){
         jwt.verifyToken(authParams).then(function(jwtResult){
@@ -123,6 +196,21 @@ exports.getUser = function(id){
     });
 }
 
+exports.findByEmail = function(email){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {
+                email: email
+            }
+        }).then(function(user){
+            resolve(user);
+        }).catch(function(err){
+            reject(err);
+        });
+ 
+    });
+}
+
 exports.updateUserMe = function(authParms, body){
     return new Promise(function(resolve, reject){
         module.exports.getUserMe(authParams).then(function(result){
@@ -141,6 +229,50 @@ exports.updateUserMe = function(authParms, body){
             }).catch(function(err){
                 reject(err);
             });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.update = function(authParams, id, body){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            models.User.update(
+                body,
+                {
+                    returning: true,
+                    where: {id: id}
+                }
+            ).then(function(update){
+                if (!update[0]){
+                    reject({message: "No records updated"});
+                } else {
+                    resolve(update[1][0]);
+                }
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.updateSystem = function(id, body){
+    return new Promise(function(resolve, reject){
+        models.User.update(
+            body,
+            {
+                returning: true,
+                 where: {id: id}
+            }
+        ).then(function(update){
+            if (!update[0]){
+                reject({message: "No records updated"});
+            } else {
+                resolve(update[1][0]);
+            }
         }).catch(function(err){
             reject(err);
         });
