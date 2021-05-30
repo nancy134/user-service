@@ -73,7 +73,7 @@ exports.invite = function(authParams, email, associationId, t){
                     associationStatus: "Invite sent"
                 }
                 if (userExists){
-                    exports.update(authParams, id, userBody).then(function(user){
+                    exports.update(authParams, user.id, userBody).then(function(user){
                         resolve(user);
                     }).catch(function(err){
                         reject(err);
