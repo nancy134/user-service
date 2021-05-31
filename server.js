@@ -132,6 +132,16 @@ app.put('/associations/:id', (req, res) => {
     });
 });
 
+app.get('/associations/me/users', (req, res) => {
+    var pageParams = utilities.getPageParams(req);
+    var authParams = jwt.getAuthParams(req);
+    associationService.getAssociatesMe(authParams, pageParams).then(function(associations){
+        res.json(associations);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 /*
 app.post('/associates/users', (req, res) => {
     var associationBody = {
