@@ -1,6 +1,6 @@
 const models = require("./models");
-
 const jwt = require('./jwt');
+const utilities = require('./utilities');
 
 function formatError(code, message){
     var ret = {
@@ -68,9 +68,11 @@ exports.invite = function(authParams, email, associationId, t){
                 }
                 // 5. if it doesn't exist create it and send invite
                 // 6. if it exists and doesn't have association, send invite
+                var token = utilities.makeid(8);
                 var userBody = {
                     AssociationId: associationId,
-                    associationStatus: "Invite sent"
+                    associationStatus: "Invite sent",
+                    associationToken: token
                 }
                 if (userExists){
                     exports.update(authParams, user.id, userBody).then(function(user){
@@ -90,6 +92,45 @@ exports.invite = function(authParams, email, associationId, t){
             }).catch(function(err){
                 reject(err);
             });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.inviteConfirm = function(body){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {associationToken: body.token}
+        }).then(function(user){
+            var ret = {};
+            if (user){
+                models.Association.findOne({
+                    where: {id: user.AssociationId}
+                }).then(function(association){
+                    if (user.cognitoId){
+                        ret = {
+                            association: association.name,
+                            operation: "login"
+                        }    
+                        resolve(ret);
+                    } else {
+                        ret = {
+                            association: association.name,
+                            operation: "register"
+                        }
+                    }
+                    resolve(ret);
+                }).catch(function(err){
+                    reject(err);
+                });
+            } else {
+                ret = {
+                    statusCode: 400,
+                    message: "Invalid invitation code"
+                };
+                reject(ret);
+            }
         }).catch(function(err){
             reject(err);
         });

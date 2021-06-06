@@ -32,7 +32,6 @@ exports.createMe = function(authParams, body, t){
                     body,
                     { transaction: t}
                 ).then(function(association){
-                    console.log(association);
                     var userBody = {
                         AssociationId: association.id,
                         name: body.name
@@ -144,13 +143,20 @@ exports.getAssociatesMe = function(authParams, pageParams){
                     limit: pageParams.limit,
                     offset: pageParams.offset
                 }).then(function(users){
-                    var ret = {
-                        page: pageParams.page,
-                        perPage: pageParams.limit,
-                        count: users.count,
-                        users: users.rows
-                    };
-                    resolve(ret);
+                    models.Association.findOne({
+                        where: { id: user.AssociationId }
+                    }).then(function(association){
+                        var ret = {
+                            page: pageParams.page,
+                            perPage: pageParams.limit,
+                            count: users.count,
+                            association: association,
+                            associates: users.rows
+                        };
+                        resolve(ret);
+                    }).catch(function(err){
+                        reject(err);
+                    });
                 }).catch(function(err){
                     reject(err);
                 });

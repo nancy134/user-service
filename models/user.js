@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ENUM,
             values: ["Invite sent", "Invite accepted"]
         },
+        associationToken: DataTypes.STRING,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, {});
