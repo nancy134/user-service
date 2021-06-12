@@ -98,10 +98,10 @@ exports.invite = function(authParams, email, associationId, t){
     });
 }
 
-exports.inviteConfirm = function(body){
+exports.getInvite = function(token){
     return new Promise(function(resolve, reject){
         models.User.findOne({
-            where: {associationToken: body.token}
+            where: {associationToken: token}
         }).then(function(user){
             var ret = {};
             if (user){
@@ -131,6 +131,33 @@ exports.inviteConfirm = function(body){
                 };
                 reject(ret);
             }
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.acceptInvite = function(authParams, body){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            var cognitoId =  jwtResult["cognito:username"];
+            models.User.findOne({
+                where: {
+                    cognitoId: cognitoId,
+                    associationToken: body.token
+                }
+            }).then(function(user){
+                var userBody = {
+                    associationStatus: "Invite accepted"
+                };
+                exports.update(authParams, user.id, userBody).then(function(user){
+                    resolve(user);
+                }).catch(function(err){
+                    reject(user);
+                });
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });

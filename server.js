@@ -61,6 +61,14 @@ app.put('/user/me', (req, res) => {
     });
 });
 
+app.get('/users/invitations', (req, res) => {
+    userService.getInvite(req.query.token).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 app.get('/users/:id', (req, res) => {
     var id = req.params.id;
     userService.getUser(id).then(function(result){
@@ -70,8 +78,9 @@ app.get('/users/:id', (req, res) => {
     });
 });
 
-app.post('/users/invite', (req, res) => {
-    userService.inviteConfirm(req.body).then(function(result){
+app.put('/users/invitations', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    userService.acceptInvite(authParams, req.body).then(function(result){
         res.json(result);
     }).catch(function(err){
         errorResponse(res, err);
