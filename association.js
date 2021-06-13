@@ -34,7 +34,7 @@ exports.createMe = function(authParams, body, t){
                 ).then(function(association){
                     var userBody = {
                         AssociationId: association.id,
-                        name: body.name
+                        associationStatus: "Invite accepted"
                     }
                     userService.updateUserMe(authParams, userBody).then(function(user){
                         resolve(association);
