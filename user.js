@@ -10,12 +10,9 @@ function formatError(code, message){
     return ret;
 }
 
-exports.create = function(body){
+exports.systemCreate = function(body){
     return new Promise(function(resolve, reject){
-        models.User.findOrCreate({
-           where: body
-        }).then(function(result){
-            var user = result[0].get({plain: true});
+        models.User.create(body).then(function(user){
             resolve(user);
         }).catch(function(err){
             reject(err);
@@ -82,7 +79,7 @@ exports.invite = function(authParams, email, associationId, t){
                     });                    
                 } else {
                     userBody.email = email;
-                    exports.create(userBody).then(function(user){
+                    exports.systemCreate(userBody).then(function(user){
                         resolve(user);
                     }).catch(function(err){
                         reject(err);
@@ -249,7 +246,8 @@ exports.getUser = function(id){
                  'state',
                  'officePhone',
                  'mobilePhone',
-                 'optout'
+                 'optout',
+                 'role'
             ]
         }).then(function(result){
             if (result){
@@ -327,7 +325,7 @@ exports.update = function(authParams, id, body){
     });
 }
 
-exports.updateSystem = function(id, body){
+exports.systemUpdate = function(id, body){
     return new Promise(function(resolve, reject){
         models.User.update(
             body,
@@ -351,6 +349,7 @@ exports.getEnums = function(){
     return new Promise(function(resolve, reject){
         ret = {};
         ret.states = models.User.rawAttributes.state.values;
+        ret.roles = models.User.rawAttributes.role.values;
         resolve(ret);
     });
 }

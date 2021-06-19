@@ -10,15 +10,16 @@ exports.handleSQSMessage = function(message){
     var json2 = JSON.parse(json.Message);
     var body = {
         email: json2.email,
-        cognitoId: json2.userSub
+        cognitoId: json2.userSub,
+        role: json2.role
     }
     userService.findByEmail(body.email).then(function(user){
         if (!user){
-            userService.create(body).then(function(result){
+            userService.systemCreate(body).then(function(result){
             }).catch(function(err){
             });
         } else {
-            userService.updateSystem(user.id, body).then(function(result){
+            userService.systemUpdate(user.id, body).then(function(result){
             }).catch(function(err){
             });
         }
@@ -33,6 +34,7 @@ exports.sqsApp = Consumer.create({
 });
 
 exports.handleError = function(err){
+    console.log(err);
 };
 module.exports.sqsApp.on('error', (err) => {
     module.exports.handleError(err);
