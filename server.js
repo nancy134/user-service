@@ -83,6 +83,7 @@ app.put('/users/invitations', (req, res) => {
     userService.acceptInvite(authParams, req.body).then(function(result){
         res.json(result);
     }).catch(function(err){
+        console.log(err);
         errorResponse(res, err);
     });
 });

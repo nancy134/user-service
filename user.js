@@ -136,28 +136,47 @@ exports.getInvite = function(token){
 
 exports.acceptInvite = function(authParams, body){
     return new Promise(function(resolve, reject){
-        jwt.verifyToken(authParams).then(function(jwtResult){
-            var cognitoId =  jwtResult["cognito:username"];
+        if (authParams.IdToken === "noAuthorizationHeader"){
             models.User.findOne({
                 where: {
-                    cognitoId: cognitoId,
+                    email: body.email,
                     associationToken: body.token
                 }
             }).then(function(user){
                 var userBody = {
                     associationStatus: "Invite accepted"
                 };
-                exports.update(authParams, user.id, userBody).then(function(user){
+                exports.systemUpdate(user.id, userBody).then(function(user){
                     resolve(user);
                 }).catch(function(err){
                     reject(user);
                 });
             }).catch(function(err){
+            });
+        } else {
+            jwt.verifyToken(authParams).then(function(jwtResult){
+                var cognitoId =  jwtResult["cognito:username"];
+                models.User.findOne({
+                    where: {
+                        cognitoId: cognitoId,
+                        associationToken: body.token
+                    }
+                }).then(function(user){
+                    var userBody = {
+                        associationStatus: "Invite accepted"
+                    };
+                    exports.update(authParams, user.id, userBody).then(function(user){
+                        resolve(user);
+                    }).catch(function(err){
+                        reject(user);
+                    });
+                }).catch(function(err){
+                    reject(err);
+                });
+            }).catch(function(err){
                 reject(err);
             });
-        }).catch(function(err){
-            reject(err);
-        });
+        }
     });
 }
 
