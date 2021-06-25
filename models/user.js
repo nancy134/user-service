@@ -1,4 +1,6 @@
 'use strict';
+const sns = require('../sns');
+
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         email: DataTypes.STRING,
@@ -31,7 +33,16 @@ module.exports = (sequelize, DataTypes) => {
         },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
-    }, {});
+    }, 
+    {
+        hooks: {
+            afterBulkUpdate: function(user){
+                var userData = user.attributes;
+                userData.id = user.where.id;
+                sns.updateUserEvent(userData);
+            }
+        } 
+    });
 
     User.associate = function(models){
         User.belongsTo(models.Association, {as: 'association', foreignKey: 'AssociationId'});

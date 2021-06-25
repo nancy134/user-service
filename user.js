@@ -296,6 +296,20 @@ exports.findByEmail = function(email){
     });
 }
 
+exports.findById = function(id){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {
+                id: id
+            }
+        }).then(function(user){
+            resolve(user);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.updateUserMe = function(authParms, body){
     return new Promise(function(resolve, reject){
         module.exports.getUserMe(authParams).then(function(result){
