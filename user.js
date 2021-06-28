@@ -273,7 +273,8 @@ exports.getUser = function(id){
                  'officePhone',
                  'mobilePhone',
                  'optout',
-                 'role'
+                 'role',
+                 'AssociationId'
             ]
         }).then(function(result){
             if (result){
@@ -391,6 +392,20 @@ exports.getEnums = function(){
         ret.states = models.User.rawAttributes.state.values;
         ret.roles = models.User.rawAttributes.role.values;
         resolve(ret);
+    });
+}
+
+exports.getAssociatesPublic = function(associationId){
+    return new Promise(function(resolve, reject){
+        models.User.findAll({
+            where: {
+                AssociationId: associationId
+            }
+        }).then(function(associates){
+            resolve(associates);
+        }).catch(function(err){
+            reject(err);
+        });
     });
 }
 

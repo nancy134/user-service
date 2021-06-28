@@ -159,6 +159,13 @@ app.get('/associations/me/users', (req, res) => {
     });
 });
 
+app.get('/associations/:id/users', (req, res) => {
+    userService.getAssociatesPublic(req.params.id).then(function(associates){
+        res.json(associates);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
 /*
 app.post('/associates/users', (req, res) => {
     var associationBody = {
