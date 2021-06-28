@@ -102,25 +102,32 @@ exports.getInvite = function(token){
         }).then(function(user){
             var ret = {};
             if (user){
-                models.Association.findOne({
-                    where: {id: user.AssociationId}
-                }).then(function(association){
-                    if (user.cognitoId){
-                        ret = {
-                            association: association.name,
-                            operation: "login"
-                        }    
-                        resolve(ret);
-                    } else {
-                        ret = {
-                            association: association.name,
-                            operation: "register"
-                        }
-                    }
+                if (user.associationStatus === "Invite accepted"){
+                    ret = {
+                        operation: "accepted"
+                    };
                     resolve(ret);
-                }).catch(function(err){
-                    reject(err);
-                });
+                } else {
+                    models.Association.findOne({
+                        where: {id: user.AssociationId}
+                    }).then(function(association){
+                        if (user.cognitoId){
+                            ret = {
+                                association: association.name,
+                                operation: "login"
+                            }    
+                            resolve(ret);
+                        } else {
+                            ret = {
+                                association: association.name,
+                                operation: "register"
+                           }
+                        }
+                        resolve(ret);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                }
             } else {
                 ret = {
                     statusCode: 400,

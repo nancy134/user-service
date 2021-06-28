@@ -40,7 +40,11 @@ module.exports = (sequelize, DataTypes) => {
                 var userData = user.attributes;
                 userData.id = user.where.id;
                 sns.updateUserEvent(userData);
+            },
+            afterCreate: function(user){
+                sns.updateUserEvent(user.dataValues);
             }
+                
         } 
     });
 
