@@ -138,28 +138,32 @@ exports.getAssociatesMe = function(authParams, pageParams){
     return new Promise(function(resolve, reject){
         jwt.verifyToken(authParams).then(function(jwtResult){
             userService.getUserMe(authParams).then(function(user){
-                models.User.findAndCountAll({
-                    where: {"AssociationId" : user.AssociationId},
-                    limit: pageParams.limit,
-                    offset: pageParams.offset
-                }).then(function(users){
-                    models.Association.findOne({
-                        where: { id: user.AssociationId }
-                    }).then(function(association){
-                        var ret = {
-                            page: pageParams.page,
-                            perPage: pageParams.limit,
-                            count: users.count,
-                            association: association,
-                            associates: users.rows
-                        };
-                        resolve(ret);
+                if (user.AssociationId){
+                    models.User.findAndCountAll({
+                        where: {"AssociationId" : user.AssociationId},
+                        limit: pageParams.limit,
+                        offset: pageParams.offset
+                    }).then(function(users){
+                        models.Association.findOne({
+                            where: { id: user.AssociationId }
+                        }).then(function(association){
+                            var ret = {
+                                page: pageParams.page,
+                                perPage: pageParams.limit,
+                                count: users.count,
+                                association: association,
+                                associates: users.rows
+                            };
+                            resolve(ret);
+                        }).catch(function(err){
+                            reject(err);
+                        });
                     }).catch(function(err){
                         reject(err);
                     });
-                }).catch(function(err){
-                    reject(err);
-                });
+                } else {
+                    reject("User does not have association");
+                }
             }).catch(function(err){
                 reject(err);
             });
