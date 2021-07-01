@@ -131,6 +131,15 @@ app.post('/associations', (req, res) => {
     });
 });
 
+app.delete('/associations/:associationId/users/:userId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    userService.removeAssociation(authParams, req.params.associationId, req.params.userId).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 app.post('/associations/:id/users/me', (req, res) => {
     var authParams = jwt.getAuthParams(req);
     userService.invite(authParams, req.body.email, req.params.id).then(function(association){
@@ -166,6 +175,7 @@ app.get('/associations/:id/users', (req, res) => {
         errorResponse(res, err);
     });
 });
+
 /*
 app.post('/associates/users', (req, res) => {
     var associationBody = {

@@ -304,6 +304,20 @@ exports.findByEmail = function(email){
     });
 }
 
+exports.findByCognitoId = function(cognitoId){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {
+                cognitoId: cognitoId 
+            }
+        }).then(function(user){
+            resolve(user);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.findById = function(id){
     return new Promise(function(resolve, reject){
         models.User.findOne({
@@ -403,6 +417,63 @@ exports.getAssociatesPublic = function(associationId){
             }
         }).then(function(associates){
             resolve(associates);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.isMyAssociate = function(cognitoId, associateUserId){
+    return new Promise(function(resolve, reject){
+        exports.findByCognitoId(cognitoId).then(function(user){
+            exports.getAssociatesPublic(user.AssociationId).then(function(associates){
+                var isAssociate = false;
+                for (var i=0; i<associates.length; i++){
+                    if (associates[i].id === parseInt(associateUserId)){
+                        isAssociate = true;
+                    }
+                }
+                resolve(isAssociate);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    
+    });
+}
+
+exports.removeAssociation = function(authParams, associationId, userId){
+    return new Promise(function(resolve, reject){
+        //authenticate user
+        // get users's association id
+        // if user is associate, then null out that users's associateid
+        //  isUserMyAssociate(cognitoId, associateUserId)
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            var cognitoId = jwtResult["cognito:username"];
+            exports.isMyAssociate(cognitoId,userId).then(function(isAssociate){
+                if (isAssociate){
+                exports.findById(userId).then(function(user){
+                    var userBody = {
+                        AssociationId: null
+                    }
+                    exports.systemUpdate(user.id, userBody).then(function(updatedUser){
+                        resolve(updatedUser);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                  
+                }).catch(function(err){
+                    reject(err);
+                });
+                } else {
+                    reject("User is not associates");
+                }
+            
+            }).catch(function(err){
+                reject(err);
+            }); 
         }).catch(function(err){
             reject(err);
         });

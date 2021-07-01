@@ -36,13 +36,11 @@ module.exports = (sequelize, DataTypes) => {
     }, 
     {
         hooks: {
-            afterBulkUpdate: function(user){
-                var userData = user.attributes;
-                userData.id = user.where.id;
-                sns.updateUserEvent(userData);
+            afterBulkUpdate: function(afterUpdate){
+                sns.updateUserEvent(afterUpdate);
             },
             afterCreate: function(user){
-                sns.updateUserEvent(user.dataValues);
+                sns.createUserEvent(user.dataValues);
             }
                 
         } 
