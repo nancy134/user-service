@@ -11,7 +11,6 @@ exports.createUserEvent = function(userData){
                 if (userData.AssociationId) updateData.AssociationId = userData.AssociationId;
                 if (user.cognitoId) updateData.cognitoId  = user.cognitoId;
                 if (user.email) updateData.email = user.email;
-
                 var params = {
                     Message: JSON.stringify(updateData),
                     TopicArn: newUserTopicARN
@@ -42,7 +41,13 @@ exports.updateUserEvent = function(afterUpdate){
             var userId = afterUpdate.where.id;
             var updateData = {};
             if (isRoleChanged) updateData.role = afterUpdate.attributes.role
-            if (isAssociationChanged) updateData.AssociationId = afterUpdate.attributes.AssociationId;
+            if (isAssociationChanged){
+                if (afterUpdate.attributes.Association === null){
+                    updateData.AssociationId = "null";
+                } else {
+                    updateData.AssociationId = afterUpdate.attributes.AssociationId;
+                }
+            }
 
             userService.findById(userId).then(function(user){
                 if (user.cognitoId) updateData.cognitoId  = user.cognitoId;
