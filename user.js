@@ -480,3 +480,17 @@ exports.removeAssociation = function(authParams, associationId, userId){
     });
 }
 
+exports.getAssociate = function(authParams, associationId, userId){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            exports.findById(userId).then(function(user){
+                resolve(user);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+

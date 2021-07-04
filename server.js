@@ -176,6 +176,17 @@ app.get('/associations/:id/users', (req, res) => {
     });
 });
 
+app.get('/associations/:associationId/users/:userId', (req, res) => {
+    var associationId = req.params.associationId;
+    var userId = req.params.userId;
+    var authParams = jwt.getAuthParams(req);
+    userService.getAssociate(authParams, associationId, userId).then(function(associate){
+        res.json(associate);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 /*
 app.post('/associates/users', (req, res) => {
     var associationBody = {
