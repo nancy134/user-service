@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ENUM,
             values: ['Agent', 'Broker', 'Administrator', 'Principal', 'Client']
         },
+        website: DataTypes.STRING,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, 

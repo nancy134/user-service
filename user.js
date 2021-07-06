@@ -274,6 +274,7 @@ exports.getUser = function(id){
                  'mobilePhone',
                  'optout',
                  'role',
+                 'website',
                  'AssociationId'
             ]
         }).then(function(result){
