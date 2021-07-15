@@ -95,16 +95,25 @@ exports.invite = function(authParams, email, associationId, t){
     });
 }
 
-exports.getInvite = function(token){
+exports.getInvite = function(token, email){
+    console.log("token: "+token);
+    console.log("email: "+email);
     return new Promise(function(resolve, reject){
         models.User.findOne({
             where: {associationToken: token}
         }).then(function(user){
+            console.log("user:");
+            console.log(user);
             var ret = {};
             if (user){
+                var emailMatch = true;
+                if (email && user.email !== email){
+                    emailMatch = false;
+                }
                 if (user.associationStatus === "Invite accepted"){
                     ret = {
-                        operation: "accepted"
+                        operation: "accepted",
+                        emailMatch: emailMatch
                     };
                     resolve(ret);
                 } else {
@@ -114,13 +123,15 @@ exports.getInvite = function(token){
                         if (user.cognitoId){
                             ret = {
                                 association: association.name,
-                                operation: "login"
+                                operation: "login",
+                                emailMatch: emailMatch
                             }    
                             resolve(ret);
                         } else {
                             ret = {
                                 association: association.name,
-                                operation: "register"
+                                operation: "register",
+                                emailMatch: emailMatch
                            }
                         }
                         resolve(ret);
@@ -195,7 +206,8 @@ exports.getUsers = function(authParams, page, limit, offset, where){
                     where: where,
                     limit: limit,
                     offset: offset,
-                    attributes: ['id', 'email', 'cognitoId','first','last']
+                    //attributes: ['id', 'email', 'cognitoId','first','last']
+                    
                 }).then(users => {
                     var ret = {
                         page: page,

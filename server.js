@@ -62,7 +62,7 @@ app.put('/user/me', (req, res) => {
 });
 
 app.get('/users/invitations', (req, res) => {
-    userService.getInvite(req.query.token).then(function(result){
+    userService.getInvite(req.query.token, req.query.email).then(function(result){
         res.json(result);
     }).catch(function(err){
         errorResponse(res, err);
