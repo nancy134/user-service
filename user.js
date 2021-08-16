@@ -96,14 +96,10 @@ exports.invite = function(authParams, email, associationId, t){
 }
 
 exports.getInvite = function(token, email){
-    console.log("token: "+token);
-    console.log("email: "+email);
     return new Promise(function(resolve, reject){
         models.User.findOne({
             where: {associationToken: token}
         }).then(function(user){
-            console.log("user:");
-            console.log(user);
             var ret = {};
             if (user){
                 var emailMatch = true;

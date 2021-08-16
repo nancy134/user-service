@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
             values: ['Agent', 'Broker', 'Administrator', 'Principal', 'Client']
         },
         website: DataTypes.STRING,
+        paymentSecret: DataTypes.STRING,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, 
