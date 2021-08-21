@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
         website: DataTypes.STRING,
         paymentSecret: DataTypes.STRING,
         createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE
+        updatedAt: DataTypes.DATE,
+        license: DataTypes.STRING
     }, 
     {
         hooks: {
