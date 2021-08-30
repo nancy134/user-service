@@ -7,6 +7,7 @@ const userService = require('./user');
 const jwksRsa = require('jwks-rsa');
 const sqsService = require('./sqs');
 const associationService = require('./association');
+const clientService = require('./client');
 const utilities = require('./utilities');
 
 // Constants
@@ -29,6 +30,39 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.send("user-service");
 });
+
+/**********************************  WJP 8/29/21 **********************************/
+
+
+
+app.get('/users/me/clients', function(req,res){ 
+var pageParams = utilities.getPageParams(req);
+var where = null;
+var authParams = jwt.getAuthParams(req);
+clientService.getAll(authParams, pageParams, where).then(function(associations){
+    res.json(associations);
+}).catch(function(err){
+    console.log(err);
+    errorResponse(res, err);
+    });
+});
+
+app.get('/clients', function(id, user_id, client_id){
+    var page = req.query.page || 1;
+    var limit = req.query.perPage || 20;
+    var offset = (parseInt(page)-1)*parseInt(limit);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    userService.getUsers(authParams, page, limit, offset, where).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    
+    }); 
+});
+
+/**********************************  /WJP 8/29/21 **********************************/
+
 
 app.get('/users', function(req, res){
     var page = req.query.page || 1;
