@@ -5,6 +5,8 @@ module.exports = (sequelize, DataTypes) => {
         
     }, {});
 
-
+    Client.associate = function(models){
+        Client.belongsTo(models.User, {as: 'user', foreignKey: 'UserId'});
+    };
     return Client;
 }
