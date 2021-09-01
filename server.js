@@ -61,6 +61,15 @@ app.get('/clients', function(id, user_id, client_id){
     }); 
 });
 
+app.post('/clients', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    clientService.create(authParams, req.body).then(function(client){
+        res.json(client);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 /**********************************  /WJP 8/29/21 **********************************/
 
 

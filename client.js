@@ -30,3 +30,23 @@ exports.getAll = function(authParams, pageParams, where){
     });
   });
 }
+exports.create = function(authParams, body, t){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            if (jwt.isAdmin(jwtResult)){
+                models.Client.create(
+                    body,
+                    { transaction: t}
+                ).then(function(client){
+                    resolve(client);
+                }).catch(function(err){
+                    reject(err);
+                });
+            } else {
+                reject(utilities.notAuthorized());
+            }
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
