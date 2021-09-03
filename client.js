@@ -69,3 +69,27 @@ exports.get = function(authParams, id){
         });
     });
 }
+
+exports.update = function(authParams, id, body){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            models.Client.update(
+                body,
+                {
+                    returning: true,
+                    where: {id: id}
+                }
+            ).then(function(update){
+                if (!update[0]){
+                    reject({message: "No records updated"});
+                } else {
+                    resolve(update[1][0]);
+                }
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
