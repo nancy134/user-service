@@ -36,14 +36,14 @@ app.get('/', (req, res) => {
 
 
 app.get('/users/me/clients', function(req,res){ 
-var pageParams = utilities.getPageParams(req);
-var where = null;
-var authParams = jwt.getAuthParams(req);
-clientService.getAll(authParams, pageParams, where).then(function(associations){
-    res.json(associations);
-}).catch(function(err){
-    console.log(err);
-    errorResponse(res, err);
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    clientService.getAllMe(authParams, pageParams, where).then(function(clients){
+        res.json(clients);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
     });
 });
 

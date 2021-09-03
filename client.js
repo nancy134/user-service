@@ -1,4 +1,3 @@
-
 const models = require("./models");
 const jwt = require('./jwt');
 const userService = require('./user');
@@ -11,7 +10,8 @@ exports.getAll = function(authParams, pageParams, where){
           where: where,
           limit: pageParams.limit,
           offset: pageParams.offset,
-          attributes: ['id', 'name']
+          attributes: ['id', 'first', 'last', 'email', 'mobilePhone']
+
         }).then(function(clients){
           var ret = {
             page: pageParams.page,
@@ -104,6 +104,31 @@ exports.createMe = function(authParams, body, t){
                 { transaction: t}
             ).then(function(client){
                 resolve(client);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.getAllMe = function(authParams, pageParams, where){
+    return new Promise(function(resolve, reject){
+    
+        userService.getUserMe(authParams).then(function(user){
+            models.Client.findAndCountAll({
+                where: {UserId: user.id},
+                limit: pageParams.limit,
+                offset: pageParams.offset,
+                attributes: ['id', 'name']
+            }).then(function(clients){
+                var ret = {
+                    page: pageParams.page,
+                    perPage: pageParams.limit,
+                    client: clients
+                };
+                resolve(ret);
             }).catch(function(err){
                 reject(err);
             });
