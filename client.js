@@ -30,6 +30,7 @@ exports.getAll = function(authParams, pageParams, where){
     });
   });
 }
+
 exports.create = function(authParams, body, t){
     return new Promise(function(resolve, reject){
         jwt.verifyToken(authParams).then(function(jwtResult){
@@ -85,6 +86,24 @@ exports.update = function(authParams, id, body){
                 } else {
                     resolve(update[1][0]);
                 }
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.createMe = function(authParams, body, t){
+    return new Promise(function(resolve, reject){
+        userService.getUserMe(authParams).then(function(user){
+            body.UserId = user.id;
+            models.Client.create(
+                body,
+                { transaction: t}
+            ).then(function(client){
+                resolve(client);
             }).catch(function(err){
                 reject(err);
             });
