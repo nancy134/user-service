@@ -47,18 +47,16 @@ clientService.getAll(authParams, pageParams, where).then(function(associations){
     });
 });
 
-app.get('/clients', function(id, user_id, client_id){
-    var page = req.query.page || 1;
-    var limit = req.query.perPage || 20;
-    var offset = (parseInt(page)-1)*parseInt(limit);
+app.get('/clients', function(req, res){
+    var pageParams = utilities.getPageParams(req);
     var where = null;
     var authParams = jwt.getAuthParams(req);
-    userService.getUsers(authParams, page, limit, offset, where).then(function(result){
-        res.json(result);
+    clientService.getAll(authParams, pageParams, where).then(function(clients){
+        res.json(clients);
     }).catch(function(err){
+        console.log(err);
         errorResponse(res, err);
-    
-    }); 
+    });
 });
 
 app.post('/clients', (req, res) => {
