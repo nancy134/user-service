@@ -70,6 +70,15 @@ app.post('/clients', (req, res) => {
     });
 });
 
+
+app.get('/clients/:id', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    clientService.get(authParams, req.params.id).then(function(client){
+        res.json(client);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
 /**********************************  /WJP 8/29/21 **********************************/
 
 

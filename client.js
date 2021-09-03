@@ -49,4 +49,23 @@ exports.create = function(authParams, body, t){
             reject(err);
         });
     });
+  
+}
+
+exports.get = function(authParams, id){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            models.Client.findOne({
+                where: {
+                    id: id
+                }
+            }).then(function(association){
+                resolve(association);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
 }
