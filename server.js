@@ -7,6 +7,7 @@ const userService = require('./user');
 const jwksRsa = require('jwks-rsa');
 const sqsService = require('./sqs');
 const associationService = require('./association');
+const clientService = require('./client');
 const utilities = require('./utilities');
 
 // Constants
@@ -29,6 +30,77 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.send("user-service");
 });
+
+/**********************************  WJP 8/29/21 **********************************/
+
+
+
+app.get('/users/me/clients', function(req,res){ 
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    clientService.getAllMe(authParams, pageParams, where).then(function(clients){
+        res.json(clients);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
+
+app.get('/clients', function(req, res){
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    clientService.getAll(authParams, pageParams, where).then(function(clients){
+        res.json(clients);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
+
+app.post('/clients', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    clientService.create(authParams, req.body).then(function(client){
+        res.json(client);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+
+app.get('/clients/:id', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    clientService.get(authParams, req.params.id).then(function(client){
+        res.json(client);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.put('/clients/:id', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    clientService.update(authParams, req.params.id, req.body).then(function(client){
+        res.json(client);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
+
+
+app.post('/users/me/clients', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    clientService.createMe(authParams, req.body).then(function(client){
+        res.json(client);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
+
+/**********************************  /WJP 8/29/21 **********************************/
+
 
 app.get('/users', function(req, res){
     var page = req.query.page || 1;

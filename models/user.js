@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
         website: DataTypes.STRING,
         paymentSecret: DataTypes.STRING,
         createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE
+        updatedAt: DataTypes.DATE,
+        license: DataTypes.STRING
     }, 
     {
         hooks: {
@@ -48,8 +49,12 @@ module.exports = (sequelize, DataTypes) => {
         } 
     });
 
+        
+   
+
     User.associate = function(models){
         User.belongsTo(models.Association, {as: 'association', foreignKey: 'AssociationId'});
+        User.hasMany(models.Client, {as: 'clients'});
     };
 
     return User;
