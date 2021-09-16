@@ -16,7 +16,7 @@ exports.getAll = function(authParams, pageParams, where){
           var ret = {
             page: pageParams.page,
             perPage: pageParams.limit,
-            client: clients
+            clients: clients
           };
           resolve(ret);
         }).catch(function(err){
@@ -121,12 +121,12 @@ exports.getAllMe = function(authParams, pageParams, where){
                 where: {UserId: user.id},
                 limit: pageParams.limit,
                 offset: pageParams.offset,
-                attributes: ['id', 'name']
+                attributes: ['id', 'first', 'last', 'email', 'mobilePhone']
             }).then(function(clients){
                 var ret = {
                     page: pageParams.page,
                     perPage: pageParams.limit,
-                    client: clients
+                    clients: clients
                 };
                 resolve(ret);
             }).catch(function(err){
