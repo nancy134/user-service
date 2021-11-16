@@ -18,6 +18,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwk-to-pem": "^2.0.5",
     "jwks-rsa": "^2.0.3",
+    "mustache": "^4.2.0",
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.3",
     "request": "^2.88.2",
