@@ -107,6 +107,9 @@ app.get('/users', function(req, res){
     var limit = req.query.perPage || 20;
     var offset = (parseInt(page)-1)*parseInt(limit);
     var where = null;
+    if (req.query.email){
+        where = {email: req.query.email};
+    }
     var authParams = jwt.getAuthParams(req);
     userService.getUsers(authParams, page, limit, offset, where).then(function(result){
         res.json(result);
