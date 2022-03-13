@@ -290,9 +290,26 @@ app.post('/associates/users', (req, res) => {
 });
 */
 
+// Opt In user to receive email
+app.post('/users', (req, res) => {
+    userService.optInUser(req.body).then(function(user){
+        res.json(user);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+// Opt out user from receiving email
+app.put('/users/', (req, res) => {
+    userService.optOutUser(req.body).then(function(user){
+        res.json(user);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 /* istanbul ignore if */
 if (process.env.NODE_ENV !== "test"){
     app.listen(PORT, HOST);
 }
-
 module.exports = app;

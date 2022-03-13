@@ -20,6 +20,81 @@ exports.systemCreate = function(body){
     });
 }
 
+exports.optInUser = function(body){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {
+                email: body.email
+            }
+        }).then(function(user){
+            if (!user){ 
+                models.User.create({
+                    body: body.email.body,
+                    optout: false
+                }).then(function(newUser){
+                    resolve(newUser);
+                }).catch(function(err){
+                    reject(err);
+                });
+            } else {
+                models.User.update(
+                    {
+                        email: body.email,
+                        optout: body.optout 
+                    },
+                    {
+                        returning: true,
+                        where: {id: user.id}
+                    }
+                ).then(function(update){
+                    if (!update[0]){
+                        reject({message: "No records updated"});
+                    } else {
+                        resolve(update[1][0]);
+                    }
+                }).catch(function(err){
+                    reject(err);
+                });
+            }
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.optOutUser = function(body){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {
+                email: body.email
+            }
+        }).then(function(user){
+            if (user){
+                models.User.update(
+                    {
+                        email: body.email,
+                        optout: body.optout
+                    },
+                    {
+                        returning: true,
+                        where: {id: user.id}
+                    } 
+                ).then(function(update){
+                    if (!update[0]){
+                        reject({message: "No records updated"});
+                    } else {
+                        resolve(update[1][0]);
+                    }
+                }).catch(function(err){
+                    reject(err);
+                });
+            } else {
+                reject({message: "user not found"});
+            }
+        });
+    });
+}
+
 exports.invite = function(authParams, email, associationId, t){
     return new Promise(function(resolve, reject){
         jwt.verifyToken(authParams).then(function(jwtResult){
