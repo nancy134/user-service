@@ -9,6 +9,10 @@ const sqsService = require('./sqs');
 const associationService = require('./association');
 const clientService = require('./client');
 const utilities = require('./utilities');
+const groupService = require('./group');
+const clientGroupService = require('./clientGroup');
+const multer = require('multer');
+const upload = multer({dest: 'uploads/'});
 
 // Constants
 const PORT = 8080;
@@ -31,9 +35,6 @@ app.get('/', (req, res) => {
     res.send("user-service");
 });
 
-/**********************************  WJP 8/29/21 **********************************/
-
-
 
 app.get('/users/me/clients', function(req,res){ 
     var pageParams = utilities.getPageParams(req);
@@ -55,7 +56,8 @@ app.get('/clients', function(req, res){
         res.json(clients);
     }).catch(function(err){
         console.log(err);
-        errorResponse(res, err);
+        res.status(400).send("error");
+        //errorResponse(res, err);
     });
 });
 
@@ -99,8 +101,61 @@ app.post('/users/me/clients', (req, res) => {
     });
 });
 
-/**********************************  /WJP 8/29/21 **********************************/
+app.get('/users/me/groups', (req, res) => {
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    groupService.getAllMe(authParams, pageParams, where).then(function(groups){
+        res.json(groups);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
 
+app.post('/users/me/groups', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    groupService.createMe(authParams, req.body).then(function(group){
+        res.json(group);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
+
+app.get('/users/me/clients/:id/groups', (req, res) => {
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    clientGroupService.getAllClientGroupsMe(authParams, pageParams, where, req.params.id).then(function(clientGroups){
+        res.json(clientGroups);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
+
+app.get('/users/me/groups/:id/clients', (req, res) => {
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    clientGroupService.getAllGroupClientsMe(authParams, pageParams, where, req.params.id).then(function(clientGroups){
+        res.json(clientGroups);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
+
+app.post('/users/me/groups/clients', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    clientGroupService.createMe(authParams, req.body).then(function(clientGroup){
+        res.json(clientGroup);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+});
 
 app.get('/users', function(req, res){
     var page = req.query.page || 1;
@@ -306,6 +361,20 @@ app.put('/users/', (req, res) => {
     }).catch(function(err){
         errorResponse(res, err);
     });
+});
+
+app.post('/upload', upload.single('file'), function(req, res){
+    var authParams = jwt.getAuthParams(req);
+    var fileInfo = {
+        path: req.file.path
+    };
+    clientService.csvImport(authParams, req.file, req.body.group).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
+    });
+
 });
 
 /* istanbul ignore if */

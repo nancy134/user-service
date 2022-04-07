@@ -57,6 +57,7 @@ module.exports = (sequelize, DataTypes) => {
     User.associate = function(models){
         User.belongsTo(models.Association, {as: 'association', foreignKey: 'AssociationId'});
         User.hasMany(models.Client, {as: 'clients'});
+        User.hasMany(models.Group, {as: 'groups'});
     };
 
     return User;
