@@ -23,7 +23,7 @@ exports.getAllClientGroupsMe = function(authParams, pageParams, where, clientId)
                     model: models.Client,
                     as: 'client',
                     where: { id: clientId, UserId: user.id},
-                    attributes: ['first', 'last', 'email', 'mobilePhone']
+                    attributes: ['first', 'last', 'email', 'mobilePhone','company']
                 }]
             }).then(function(clientGroups){
                 var ret = {
@@ -59,7 +59,7 @@ exports.getAllGroupClientsMe = function(authParams, pageParams, where, groupId){
                     model: models.Client,
                     as: 'client',
                     where: {UserId: user.id},
-                    attributes: ['first', 'last', 'email', 'mobilePhone']
+                    attributes: ['first', 'last', 'email', 'mobilePhone', 'company']
                 }]
             }).then(function(clientGroups){
                 var rows = [];
