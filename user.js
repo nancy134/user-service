@@ -27,11 +27,13 @@ exports.optInUser = function(body){
                 email: body.email
             }
         }).then(function(user){
+            console.log(user);
             if (!user){ 
                 models.User.create({
-                    body: body.email.body,
+                    email: body.email,
                     optout: false
                 }).then(function(newUser){
+                    console.log(newUser);
                     resolve(newUser);
                 }).catch(function(err){
                     reject(err);
@@ -47,6 +49,7 @@ exports.optInUser = function(body){
                         where: {id: user.id}
                     }
                 ).then(function(update){
+                    console.log(Update);
                     if (!update[0]){
                         reject({message: "No records updated"});
                     } else {
