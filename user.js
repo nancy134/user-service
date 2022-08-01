@@ -27,13 +27,11 @@ exports.optInUser = function(body){
                 email: body.email
             }
         }).then(function(user){
-            console.log(user);
             if (!user){ 
                 models.User.create({
                     email: body.email,
                     optout: false
                 }).then(function(newUser){
-                    console.log(newUser);
                     resolve(newUser);
                 }).catch(function(err){
                     reject(err);
@@ -49,7 +47,6 @@ exports.optInUser = function(body){
                         where: {id: user.id}
                     }
                 ).then(function(update){
-                    console.log(Update);
                     if (!update[0]){
                         reject({message: "No records updated"});
                     } else {
@@ -92,7 +89,14 @@ exports.optOutUser = function(body){
                     reject(err);
                 });
             } else {
-                reject({message: "user not found"});
+                models.User.create({
+                    email: body.email,
+                    optout: body.optout 
+                }).then(function(newUser){
+                    resolve(newUser);
+                }).catch(function(err){
+                    reject(err);
+                });
             }
         });
     });
