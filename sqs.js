@@ -6,6 +6,7 @@ AWS.config.update({region: 'us-east-1'});
 const newUserQueueUrl = process.env.AWS_SQS_NEW_USER_QUEUE
 
 exports.handleSQSMessage = function(message){
+    console.log(message);
     var json = JSON.parse(message.Body);
     var json2 = JSON.parse(json.Message);
     var body = {
@@ -13,18 +14,25 @@ exports.handleSQSMessage = function(message){
         cognitoId: json2.userSub,
         role: json2.role
     }
+    
     userService.findByEmail(body.email).then(function(user){
         if (!user){
-            userService.systemCreate(body).then(function(result){
+            userService.systemCreate(body).then(function(result){    
+                console.log(result);
+
             }).catch(function(err){
+                console.log(err);
             });
         } else {
             userService.systemUpdate(user.id, body).then(function(result){
             }).catch(function(err){
+                console.log(err);
             });
         }
     }).catch(function(err){
+        console.log(err);
     });
+
 }
 
 exports.sqsApp = Consumer.create({
