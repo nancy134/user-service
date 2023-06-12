@@ -1,0 +1,37 @@
+diff --git a/models/user.js b/models/user.js
+index 7ec8e41..70c3685 100644
+--- a/models/user.js
++++ b/models/user.js
+@@ -1,6 +1,23 @@
+ 'use strict';
+ const sns = require('../sns');
+ 
++'use strict';
++module.exports = (sequelize, DataTypes) => {
++    const Smartcar = sequelize.define('Smartcar', {
++        UserId: DataTypes.INTEGER,
++        accessToken: DataTypes.STRING,
++        refreshToken: DataTypes.STRING,
++        expiration: DataTypes.STRING,
++        refreshExpiration: DataTypes.STRING
++
++    }, {});
++
++    Smartcar.associate = function(models){
++        Smartcar.belongsTo(models.User, {as: 'user', foreignKey: 'UserId'});
++    };
++    return Smartcar;
++}
++
+ module.exports = (sequelize, DataTypes) => {
+     const User = sequelize.define('User', {
+         email: DataTypes.STRING,
+@@ -58,6 +75,8 @@ module.exports = (sequelize, DataTypes) => {
+         User.belongsTo(models.Association, {as: 'association', foreignKey: 'AssociationId'});
+         User.hasMany(models.Client, {as: 'clients'});
+         User.hasMany(models.Group, {as: 'groups'});
++        User.hasMany(models.Smartcar, {as: 'smartcars'});
++
+     };
+ 
+     return User;
