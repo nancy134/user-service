@@ -1,4 +1,6 @@
 const userService = require('./user');
+const smartcarService = require('./smartcar');
+
 const AWS = require('aws-sdk');
 const { Consumer } = require('sqs-consumer');
 
@@ -9,22 +11,37 @@ exports.handleSQSMessage = function(message){
     console.log(message);
     var json = JSON.parse(message.Body);
     var json2 = JSON.parse(json.Message);
-    var body = {
-        email: json2.email,
-        cognitoId: json2.userSub,
-        role: json2.role
-    }
-    
-    userService.findByEmail(body.email).then(function(user){
-        if (!user){
-            userService.systemCreate(body).then(function(result){    
-                console.log(result);
 
+    var userBody = {};
+    if (json2.email) userBody.email = json2.email;
+    if (json2.userSub) userBody.cognitoId = json2.userSub;
+    if (json2.role) userBody.role = json2.role;
+
+    var smartcarBody = {};
+    if (json2.accessToken) smartcarBody.accessToken = json2.accessToken;
+    if (json2.refreshToken) smartcarBody.refreshToken = json2.refreshToken;
+    if (json2.expiration) smartcarBody.expiration = json2.expiration;
+    if (json2.refreshExpiration) smartcarBody.refreshExpiration = json2.refreshExpiration;
+    
+
+    userService.findByEmail(userBody.email).then(function(user){
+
+        if (!user){
+            userService.systemCreate(userBody).then(function(result){
+                console.log(result);
+                smartcarBody.UserId = result.id;
+
+                smartcarService.systemCreate(smartcarBody).then(function(result2){
+                    console.log(result2);
+                }).catch(function(err){
+                    console.log(err);
+                });
             }).catch(function(err){
                 console.log(err);
             });
+
         } else {
-            userService.systemUpdate(user.id, body).then(function(result){
+            userService.systemUpdate(user.id, userBody).then(function(result){
             }).catch(function(err){
                 console.log(err);
             });
@@ -34,6 +51,7 @@ exports.handleSQSMessage = function(message){
     });
 
 }
+
 
 exports.sqsApp = Consumer.create({
     queueUrl: newUserQueueUrl,
