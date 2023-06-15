@@ -11,6 +11,7 @@ exports.handleSQSMessage = function(message){
     console.log(message);
     var json = JSON.parse(message.Body);
     var json2 = JSON.parse(json.Message);
+    console.log(json2);
 
     var userBody = {};
     if (json2.email) userBody.email = json2.email;
