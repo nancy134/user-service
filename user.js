@@ -31,6 +31,9 @@ exports.optInUser = function(body){
                 model: models.Smartcar,
                 as: 'smartcars'
             }
+            ]
+
+    
         }).then(function(user){
             if (!user){ 
                 models.User.create({
