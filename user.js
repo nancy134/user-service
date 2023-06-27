@@ -24,7 +24,12 @@ exports.optInUser = function(body){
     return new Promise(function(resolve, reject){
         models.User.findOne({
             where: {
-                email: body.email
+                cognitoId: jwtResult["cognito:username"]
+            },
+            include: [
+            {
+                model: models.Smartcar,
+                as: 'smartcars'
             }
         }).then(function(user){
             if (!user){ 
