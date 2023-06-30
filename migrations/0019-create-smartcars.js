@@ -30,6 +30,11 @@ module.exports = {
             refreshExpiration: {
                 type: Sequelize.STRING
             },
+
+            smartcarId: {
+                type: Sequelize.STRING
+            },
+
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE

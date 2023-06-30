@@ -23,7 +23,8 @@ exports.handleSQSMessage = function(message){
     if (json2.refreshToken) smartcarBody.refreshToken = json2.refreshToken;
     if (json2.expiration) smartcarBody.expiration = json2.expiration;
     if (json2.refreshExpiration) smartcarBody.refreshExpiration = json2.refreshExpiration;
-    
+    if (json2.smartcarId) smartcarBody.smartcarId = json2.smartcarId;
+
 
     userService.findByEmail(userBody.email).then(function(user){
 

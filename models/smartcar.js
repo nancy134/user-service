@@ -5,7 +5,9 @@ module.exports = (sequelize, DataTypes) => {
         accessToken: DataTypes.STRING,
         refreshToken: DataTypes.STRING,
         expiration: DataTypes.STRING,
-        refreshExpiration: DataTypes.STRING
+        refreshExpiration: DataTypes.STRING,
+        smartcarId: DataTypes.STRING
+
 
     }, {});
 

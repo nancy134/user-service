@@ -327,7 +327,15 @@ exports.getUserMe = function(authParams){
             models.User.findOne({
                 where: {
                     cognitoId: jwtResult["cognito:username"] 
+                },
+                include: [
+                {
+                    model: models.Smartcar,
+                    as: 'smartcars'
                 }
+                ]
+
+                
             }).then(function(result){
                 if (result){
                     var user = result.get({plain:true});
