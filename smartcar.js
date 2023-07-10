@@ -11,3 +11,44 @@ exports.systemCreate = function(body){
         });
     });
 }
+
+exports.createMe = function(authParams, body, t){
+    return new Promise(function(resolve, reject){
+        userService.getUserMe(authParams).then(function(user){
+            body.UserId = user.id;
+            models.Smartcar.create(
+                body,
+                { transaction: t}
+            ).then(function(smartcar){
+                resolve(smartcar);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.getAllMe = function(authParams, pageParams, where){
+    return new Promise(function(resolve, reject){
+        userService.getUserMe(authParams).then(function(user){
+
+            models.Smartcar.findAndCountAll({
+                where: {UserId: user.id},
+                limit: pageParams.limit,
+                offset: pageParams.offset
+            }).then(function(smartcars){
+                var ret = {
+                    page: pageParams.limit,
+                    smartcars: smartcars
+                };
+                resolve(ret);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}

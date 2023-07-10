@@ -377,6 +377,30 @@ app.post('/upload', upload.single('file'), function(req, res){
 
 });
 
+///////////////////////
+// Smartcar
+///////////////////////
+
+app.post('/users/me/smartcars', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    smartcarService.createMe(authParams, req.body).then(function(smartcar){
+        res.json(smartcar);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.get('/users/me/smartcars', (req, res) => {
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    smartcarService.getAllMe(authParams, pageParams, where).then(function(smartcars){
+        res.json(smartcars);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 /* istanbul ignore if */
 if (process.env.NODE_ENV !== "test"){
     app.listen(PORT, HOST);
